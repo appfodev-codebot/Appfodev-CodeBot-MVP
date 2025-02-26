@@ -1,15 +1,17 @@
 from flask import Flask, request, jsonify
 import openai
+from pymongo import MongoClient
 
 app = Flask(__name__)
 
-# Set your OpenAI API key
+# OpenAI API Key
 OPENAI_API_KEY = "your-api-key-here"
 openai.api_key = OPENAI_API_KEY
 
-@app.route('/')
-def home():
-    return "Welcome to Appfodev CodeBot MVP - AI Code Generator"
+# MongoDB Connection
+client = MongoClient("mongodb://localhost:27017/")
+db = client["codebot_db"]
+collection = db["generated_codes"]
 
 @app.route('/generate-code', methods=['POST'])
 def generate_code():
@@ -26,10 +28,18 @@ def generate_code():
         )
         generated_code = response["choices"][0]["message"]["content"]
 
+        # Save to MongoDB
+        collection.insert_one({"prompt": user_prompt, "generated_code": generated_code})
+
         return jsonify({"generated_code": generated_code})
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/history', methods=['GET'])
+def get_history():
+    history = list(collection.find({}, {"_id": 0}))  # Exclude MongoDB object ID
+    return jsonify(history)
 
 if __name__ == '__main__':
     app.run(debug=True)
