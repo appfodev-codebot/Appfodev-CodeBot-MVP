@@ -38,7 +38,7 @@ AWS/GCP account (optional for cloud deployment).
 4. Setup Guide
 Step 1: Clone the Repository
 
-git clone https://github.com/appfodev/codebot.git  
+git clone   https://github.com/appfodev-codebot/Appfodev-CodeBot-MVP.git
 cd codebot-mvp  
 
 Step 2: Backend Setup
